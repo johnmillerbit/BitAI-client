@@ -1,103 +1,281 @@
-import Image from "next/image";
+'use client'
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Bot, Copy } from 'lucide-react';
 
-export default function Home() {
+interface Message {
+  id: number;
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: Date;
+}
+
+interface ChatHistoryItem {
+  role: "user" | "model" | "system";
+  parts: Array<{ text: string }>;
+}
+
+export default function ChatInterface() {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 1,
+      type: 'bot',
+      content: "Hello! I'm your AI assistant. How can I help you today?",
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (): Promise<void> => {
+    if (!inputValue.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now(),
+      type: 'user',
+      content: inputValue,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Add user message to chat history
+    const newUserHistory: ChatHistoryItem = {
+      role: 'user',
+      parts: [{ text: inputValue }]
+    };
+    
+    const currentQuery = inputValue;
+    setInputValue('');
+    setIsTyping(true);
+
+    try {
+      // Call the RAG API
+      const response = await fetch('http://localhost:3001/api/rag', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: currentQuery,
+          history: chatHistory
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+
+      let botResponse = '';
+      const botMessageId = Date.now() + 1;
+      
+      // Add initial empty bot message
+      setMessages(prev => [...prev, {
+        id: botMessageId,
+        type: 'bot',
+        content: '',
+        timestamp: new Date()
+      }]);
+
+      // Read the stream
+      while (true) {
+        setIsTyping(false);
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              break;
+            }
+            
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                botResponse += parsed.text;
+                
+                // Update the bot message in real-time
+                setMessages(prev => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: botResponse }
+                    : msg
+                ));
+              }
+              if (parsed.error) {
+                throw new Error(parsed.error);
+              }
+            } catch (parseError) {
+              // Skip malformed JSON
+              continue;
+            }
+          }
+        }
+      }
+
+      // Update chat history with both user and bot messages
+      const newBotHistory: ChatHistoryItem = {
+        role: 'model',
+        parts: [{ text: botResponse }]
+      };
+      
+      setChatHistory(prev => [...prev, newUserHistory, newBotHistory]);
+
+    } catch (error) {
+      console.error('Error calling RAG API:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: Date.now() + 2,
+        type: 'bot',
+        content: 'Sorry, there was an error connecting to the server. Please try again.',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => {
+        // Remove the empty bot message if it exists
+        const filtered = prev.filter(msg => msg.content !== '' || msg.type !== 'bot');
+        return [...filtered, errorMessage];
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const copyToClipboard = (text: string): void => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col h-full bg-gray-900">
+      {/* Chat Messages Area */}
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-4 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            > 
+              <div className={`max-w-3xl ${message.type === 'user' ? 'order-2' : ''}`}> 
+                <div
+                  className={`p-4 rounded-2xl ${
+                    message.type === 'user'
+                      ? 'bg-blue-600 text-white ml-auto'
+                      : 'bg-gray-800 text-gray-100 border border-gray-700'
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                </div>
+                
+                <div className={`flex items-center gap-2 mt-2 text-xs text-gray-500 ${
+                  message.type === 'user' ? 'justify-end' : 'justify-start'
+                }`}>
+                  <span>{formatTime(message.timestamp)}</span>
+                  
+                  {message.type === 'bot' && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => copyToClipboard(message.content)}
+                        className="p-1 hover:bg-gray-700 rounded"
+                        title="Copy message"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          {/* Typing Indicator */}
+          {isTyping && (
+            <div className="flex gap-4 justify-start">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div className="bg-gray-800 border border-gray-700 rounded-2xl p-4">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-gray-700 bg-gray-800 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative flex items-end gap-3">
+            <div className="flex-1 relative">
+              <textarea
+                ref={textareaRef}
+                value={inputValue}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask anything"
+                rows={1}
+                className="w-full resize-none rounded-xl border border-gray-600 bg-gray-700 px-4 py-3 pr-12 text-gray-100 placeholder-gray-400 max-h-32 overflow-y-auto focus:outline-none focus:ring-0"
+                style={{
+                  minHeight: '48px',
+                  height: 'auto'
+                }}
+                onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 128) + 'px';
+                }}
+              />
+            </div>
+            
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isTyping}
+              className="flex-shrink-0 w-12 h-12 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors duration-200"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="mt-2 text-xs text-gray-400 text-center">
+            MillerBit
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
