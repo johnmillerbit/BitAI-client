@@ -123,7 +123,7 @@ export default function ChatInterface() {
               if (parsed.error) {
                 throw new Error(parsed.error);
               }
-            } catch (parseError) {
+            } catch {
               // Skip malformed JSON
               continue;
             }

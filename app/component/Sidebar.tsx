@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faBars, faX, faGear } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faBars, faGear } from "@fortawesome/free-solid-svg-icons";
 import { useSidebar } from "@/context/Sidebar";
 
 export default function Sidebar() {
