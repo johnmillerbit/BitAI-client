@@ -61,7 +61,7 @@ export default function ChatInterface() {
 
     try {
       // Call the RAG API
-      const response = await fetch('http://localhost:3001/chat', {
+      const response = await fetch('https://bitai.millerbit.biz/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
