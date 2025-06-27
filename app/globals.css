@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-/* * {
-	background-color: #000215;
-	color: white;
-} */
+body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+body::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, and Opera */
+}

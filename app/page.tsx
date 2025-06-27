@@ -10,7 +10,7 @@ interface Message {
 }
 
 interface ChatHistoryItem {
-  role: "user" | "model" | "system";
+  role: "user" | "model";
   parts: Array<{ text: string }>;
 }
 
@@ -19,7 +19,7 @@ export default function ChatInterface() {
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm your AI assistant. How can I help you today?",
+      content: "Hello! I'm BitAI. How can I help you today?",
       timestamp: new Date()
     }
   ]);
@@ -61,7 +61,7 @@ export default function ChatInterface() {
 
     try {
       // Call the RAG API
-      const response = await fetch('https://bitai.millerbit.biz/api/rag', {
+      const response = await fetch('http://localhost:3001/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,9 +238,9 @@ export default function ChatInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-700 bg-gray-800 p-4">
+      <div className="">
         <div className="max-w-4xl mx-auto">
-          <div className="relative flex items-end gap-3">
+          <div className="relative flex gap-3">
             <div className="flex-1 relative">
               <textarea
                 ref={textareaRef}
@@ -269,10 +269,6 @@ export default function ChatInterface() {
             >
               <Send className="w-5 h-5" />
             </button>
-          </div>
-          
-          <div className="mt-2 text-xs text-gray-400 text-center">
-            MillerBit
           </div>
         </div>
       </div>
