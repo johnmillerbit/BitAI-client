@@ -15,10 +15,10 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Build the Next.js application
-RUN pnpm build
+RUN pnpm run build
 
 # Expose the port the app runs on
 EXPOSE 3000
 
 # Define the command to run the application
-CMD ["pnpm", "start"]
+CMD ["pnpm", "run", "start"]
