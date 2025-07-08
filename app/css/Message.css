@@ -1,0 +1,32 @@
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.bot-message {
+  justify-content: flex-start;
+}
+
+.user-message .message-content {
+  order: 2;
+}
+
+.user-message .message-bubble {
+  background-color: #2563eb; /* blue-600 */
+  color: white;
+  margin-left: auto;
+}
+
+.bot-message .message-bubble {
+  background-color: #1f2937; /* gray-800 */
+  color: #f3f4f6; /* gray-100 */
+  border: 1px solid #374151; /* gray-700 */
+}
+
+.user-message .time {
+  justify-content: flex-end;
+}
+
+.bot-message .time {
+  justify-content: flex-start;
+}

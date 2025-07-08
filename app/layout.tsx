@@ -8,6 +8,7 @@ import SidebarProvider from "../context/Sidebar";
 //import component
 import Sidebar from "./component/Sidebar";
 import Header from "./component/Header";
+import MainContentWrapper from "./component/MainContentWrapper";
 
 //font
 const notoSans = Noto_Sans_Lao({
