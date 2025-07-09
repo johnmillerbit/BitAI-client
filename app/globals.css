@@ -1,9 +1,30 @@
 @import "tailwindcss";
 
-body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+/* Custom Scrollbar Styles */
+
+/* For Webkit-based browsers (Chrome, Safari, new Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-body::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari, and Opera */
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* gray-600 */
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280; /* gray-500 */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent; /* thumb color and track color */
 }

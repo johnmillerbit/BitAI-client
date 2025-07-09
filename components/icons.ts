@@ -1,5 +1,5 @@
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBars, faPlus, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPlus, faGear, faX } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faBars, faPlus, faGear);
+library.add(faBars, faPlus, faGear, faX);

@@ -23,6 +23,11 @@
   border: 1px solid #374151; /* gray-700 */
 }
 
+.message-bubble pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 .user-message .time {
   justify-content: flex-end;
 }
