@@ -1,7 +1,6 @@
-
 import { ChatHistoryItem } from '../types';
 
-const API_HOST = "https://bitai.millerbit.biz/api/chat";
+const API_HOST = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/chat";
 
 export const callRagApi = async (query: string, history: ChatHistoryItem[]) => {
   const response = await fetch(API_HOST, {
@@ -16,8 +15,14 @@ export const callRagApi = async (query: string, history: ChatHistoryItem[]) => {
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    // Optionally log error details here for production
+    let errorMsg = `HTTP error! status: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMsg = errorData?.error || errorMsg;
+    } catch {}
+    throw new Error(errorMsg);
   }
 
-  return response;
+  return response.json();
 };
