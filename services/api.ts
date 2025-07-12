@@ -13,9 +13,9 @@ export const callRagApi = async (query: string, history: ChatHistoryItem[]) => {
       history,
     }),
   });
+  console.log("API response status:", response.status);
 
   if (!response.ok) {
-    // Optionally log error details here for production
     let errorMsg = `HTTP error! status: ${response.status}`;
     try {
       const errorData = await response.json();
@@ -24,5 +24,5 @@ export const callRagApi = async (query: string, history: ChatHistoryItem[]) => {
     throw new Error(errorMsg);
   }
 
-  return response.json();
+  return response;
 };

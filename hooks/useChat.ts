@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Message, ChatHistoryItem } from '../types';
 import { callRagApi } from '../services/api';
