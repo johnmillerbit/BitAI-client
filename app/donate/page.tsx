@@ -134,6 +134,8 @@ export default function DonatePage() {
                     width={100}
                     height={100}
                     className="mt-2 max-w-[100px] rounded"
+                    unoptimized
+                    loading="lazy"
                   />
                 )}
               </li>
