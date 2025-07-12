@@ -2,7 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["bitai.millerbit.biz", "localhost"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "bitai.millerbit.biz",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+    ],
   },
   /* config options here */
 };

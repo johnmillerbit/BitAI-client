@@ -10,7 +10,7 @@ interface Donator {
   file_path: string;
 }
 
-const HOST = "https://bitai.millerbit.biz";
+const HOST = process.env.NEXT_PUBLIC_URL!;
 
 const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY!;
 
@@ -25,7 +25,7 @@ export default function DonatePage() {
     const fetchDonators = async () => {
       try {
         const response = await fetch(`${HOST}/api/donate`, {
-          headers: { "x-api-key": X_API_KEY },
+          headers: { "x-api-key": X_API_KEY , "Cache-Control": "no-cache" },
         });
         const data = await response.json();
         if (response.ok) {
