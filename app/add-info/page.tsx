@@ -2,6 +2,8 @@
 import { useState } from "react";
 
 const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY!;
+// const HOST = "https://bitai.millerbit.biz/api/add-document";
+const HOST = "http://localhost:3001/add-document";  
 
 export default function AddInfo() {
   const [content, setContent] = useState("");
@@ -28,7 +30,7 @@ export default function AddInfo() {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch("https://bitai.millerbit.biz/api/add-document", {
+      const res = await fetch(HOST, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
