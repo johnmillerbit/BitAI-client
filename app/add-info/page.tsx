@@ -3,25 +3,40 @@ import { useState } from "react";
 
 const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY!;
 // const HOST = "https://bitai.millerbit.biz/api/add-document";
-const HOST = "http://localhost:3001/add-document";  
+const HOST = "http://localhost:3001/add-document";
+
+// Define a type for your metadata items
+interface MetadataItem {
+  id: string; // Add an ID for unique keying in React
+  key: string;
+  value: string;
+}
 
 export default function AddInfo() {
   const [content, setContent] = useState("");
-  const [metadataObj, setMetadataObj] = useState<Record<string, string>>({});
+  // Change metadataObj to an array of objects
+  const [metadataItems, setMetadataItems] = useState<MetadataItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleMetadataChange = (key: string, value: string) => {
-    setMetadataObj((prev) => ({ ...prev, [key]: value }));
+  // Helper to generate unique IDs for new metadata fields
+  const generateUniqueId = () => Math.random().toString(36).substring(2, 9);
+
+  const handleMetadataChange = (id: string, field: "key" | "value", newValue: string) => {
+    setMetadataItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, [field]: newValue } : item
+      )
+    );
   };
+
   const handleAddMetadataField = () => {
-    setMetadataObj((prev) => ({ ...prev, ["source"]: "" }));
+    setMetadataItems((prev) => [...prev, { id: generateUniqueId(), key: "source", value: "wiki" }]);
   };
-  const handleRemoveMetadataField = (key: string) => {
-    const newObj = { ...metadataObj };
-    delete newObj[key];
-    setMetadataObj(newObj);
+
+  const handleRemoveMetadataField = (id: string) => {
+    setMetadataItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +44,17 @@ export default function AddInfo() {
     setLoading(true);
     setError(null);
     setResult(null);
+
+    // Convert the array of metadata items back to an object for the API
+    const metadataObj: Record<string, string> = metadataItems.reduce((acc: Record<string, string>, item) => {
+      if (item.key.trim() !== "") { // Only include if the key is not empty
+        acc[item.key] = item.value;
+      }
+      return acc;
+    }, {});
+
+    console.log(metadataObj);
+
     try {
       const res = await fetch(HOST, {
         method: "POST",
@@ -75,30 +101,24 @@ export default function AddInfo() {
           <div>
             <label className="block text-gray-300 font-semibold mb-2">Metadata ເພີ່ມເຕີມ (ບໍ່ບັງຄັບ)</label>
             <div className="space-y-2">
-              {Object.entries(metadataObj).map(([key, value], idx) => (
-                <div key={key + idx} className="flex gap-2 items-center group">
+              {metadataItems.map((item) => (
+                <div key={item.id} className="flex gap-2 items-center group">
                   <input
-                    className="flex-1 p-2 w-20 rounded-full bg-gray-800 border border-gray-700  transition outline-none text-gray-100 placeholder-gray-500 text-sm shadow-sm px-4"
+                    className="flex-1 p-2 w-20 rounded-full bg-gray-800 border border-gray-700 transition outline-none text-gray-100 placeholder-gray-500 text-sm shadow-sm px-4"
                     placeholder="ຄີ"
-                    value={key}
-                    onChange={e => {
-                      const newKey = e.target.value;
-                      const newObj = { ...metadataObj };
-                      delete newObj[key];
-                      newObj[newKey] = value;
-                      setMetadataObj(newObj);
-                    }}
+                    value={item.key}
+                    onChange={e => handleMetadataChange(item.id, "key", e.target.value)}
                   />
                   <span className="text-gray-400 font-bold">:</span>
                   <input
                     className="flex-1 p-2 w-20 rounded-full bg-gray-800 border border-gray-700 transition outline-none text-gray-100 placeholder-gray-500 text-sm shadow-sm px-4"
                     placeholder="ຄ່າ"
-                    value={value}
-                    onChange={e => handleMetadataChange(key, e.target.value)}
+                    value={item.value}
+                    onChange={e => handleMetadataChange(item.id, "value", e.target.value)}
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveMetadataField(key)}
+                    onClick={() => handleRemoveMetadataField(item.id)}
                     className="text-red-400 hover:text-red-300 px-2 transition"
                     aria-label="ລຶບ metadata"
                   >
