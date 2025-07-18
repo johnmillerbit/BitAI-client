@@ -6,8 +6,8 @@ import "./globals.css";
 import SidebarProvider from "../context/Sidebar";
 
 //import component
-import Sidebar from "./component/Sidebar";
-import MainContentWrapper from "./component/MainContentWrapper";
+import Sidebar from "./components/Sidebar";
+import MainContentWrapper from "./components/MainContentWrapper";
 
 //font
 const notoSans = Noto_Sans_Lao({

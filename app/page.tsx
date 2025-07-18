@@ -1,8 +1,8 @@
 'use client';
-import ChatInput from './component/ChatInput';
-import ChatMessages from './component/ChatMessages';
+import ChatInput from './components/ChatInput';
+import ChatMessages from './components/ChatMessages';
 import { useChat } from '../hooks/useChat';
-import PrismLoader from './component/prism-loader';
+import PrismLoader from './components/prism-loader';
 
 export default function ChatInterface() {
   const { messages, isTyping, handleSendMessage } = useChat();
