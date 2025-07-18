@@ -3,7 +3,7 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSidebar } from "@/context/Sidebar";
 import Link from "next/link";
-import "../../components/icons";
+import "../../lib/icons";
 
 export default function Sidebar() {
     const { toggleSidebar, isSidebarOpen } = useSidebar();
