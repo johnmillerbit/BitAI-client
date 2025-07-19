@@ -18,6 +18,7 @@
     "@types/pg": "^8.15.4",
     "bcryptjs": "^3.0.2",
     "cookie": "^1.0.2",
+    "dompurify": "^3.2.6",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.523.0",
     "marked": "^16.0.0",
