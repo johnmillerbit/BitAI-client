@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { marked } from "marked";
-import DOMPurify from "dompurify";
 
 // Configure marked to be synchronous
 marked.setOptions({
@@ -12,8 +11,20 @@ interface Props {
 }
 
 const MarkdownRenderer: React.FC<Props> = ({ markdown }) => {
-    const renderedHTML = marked(markdown) as string; // Assert as string after setting async: false
-    const sanitizedHTML = DOMPurify.sanitize(renderedHTML);
+    const [sanitizedHTML, setSanitizedHTML] = useState("");
+
+    useEffect(() => {
+        const renderMarkdown = async () => {
+            const rendered = marked(markdown) as string;
+            if (typeof window !== 'undefined') {
+                const DOMPurify = (await import("dompurify")).default;
+                setSanitizedHTML(DOMPurify.sanitize(rendered));
+            } else {
+                setSanitizedHTML(rendered);
+            }
+        };
+        renderMarkdown();
+    }, [markdown]);
 
     return (
         <div>
