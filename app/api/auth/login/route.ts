@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateToken, setTokenCookie, verifyPassword } from '../../../../lib/auth';
 import { Admin } from '../../../../lib/types';
-
-const users: Admin[] = [
-  {
-    id: '1',
-    username: 'test',
-    password: '$2a$12$HytxPrbVQ/4MhCn5QXg4J.3qUEkAfxI6G3n8IXEhZv18WPjuCWAJq', // Hashed password for 'password123'
-  },
-];
+import pool from '../../../../lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,19 +11,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Missing username or password' }, { status: 400 });
     }
 
-    const user = users.find((u) => u.username === username);
+    const adminQuery = await pool.query<Admin>(
+      'SELECT * FROM admin WHERE username = $1',
+      [username]
+    );
 
-    if (!user) {
+    if (!adminQuery.rows.length) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
-    const isValid = await verifyPassword(password, user.password);
+    const admin = adminQuery.rows[0];
+
+    if (!admin) {
+      return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
+    }
+
+    const isValid = await verifyPassword(password, admin.password);
 
     if (!isValid) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
-    const token = generateToken({ id: user.id, username: user.username });
+    const token = generateToken({ id: admin.id, username: admin.username });
 
     const response = NextResponse.json({ message: 'Login successful' }, { status: 200 });
     setTokenCookie(response, token);

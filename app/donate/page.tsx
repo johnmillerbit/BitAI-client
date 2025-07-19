@@ -8,6 +8,7 @@ interface Donator {
   message: string;
   amount: number;
   file_path: string;
+  isAllowed: boolean;
 }
 
 const HOST = process.env.NEXT_PUBLIC_URL!;
@@ -20,16 +21,18 @@ export default function DonatePage() {
   const [message, setMessage] = useState("");
   const [slip, setSlip] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [alert, setAlert] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDonators = async () => {
       try {
-        const response = await fetch(`${HOST}/api/donate`, {
+        const response = await fetch(`${HOST}/donate/allowed`, {
           headers: { "x-api-key": X_API_KEY , "Cache-Control": "no-cache" },
         });
         const data = await response.json();
         if (response.ok) {
           setDonators(data.donators);
+
         } else {
           setError(data.error || "Failed to fetch donators");
         }
@@ -52,17 +55,17 @@ export default function DonatePage() {
     }
 
     try {
-      const response = await fetch(`${HOST}/api/donate`, {
+      const response = await fetch(`${HOST}/donate`, {
         method: "POST",
         headers: { "x-api-key": X_API_KEY },
         body: formData,
       } as RequestInit);
       const data = await response.json();
       if (response.ok) {
-        setDonators([data.donator, ...donators]);
         setName("");
         setMessage("");
         setSlip(null);
+        setAlert("ສະລິບໄດ້ຖືກອັບໂຫຼດແລ້ວ! ຂອບໃຈສໍາລັບການສະໜັບສະໜຸນ BitAI! ລໍຖ້າການກວດສອບ");
       } else {
         setError(data.error || "Failed to upload donation");
       }
@@ -115,6 +118,7 @@ export default function DonatePage() {
         >
           ອັບໂຫຼດສະລິບ
         </button>
+        {alert && <p className="text-yellow-500">{alert}</p>}
       </form>
       <div className="w-full max-w-sm">
         <h2 className="text-xl font-semibold mb-2">ຜູ້ສະໜັບສະໜຸນ</h2>
