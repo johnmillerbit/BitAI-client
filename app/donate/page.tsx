@@ -26,7 +26,7 @@ export default function DonatePage() {
   useEffect(() => {
     const fetchDonators = async () => {
       try {
-        const response = await fetch(`${HOST}/donate/allowed`, {
+        const response = await fetch(`${HOST}/api/donate/allowed`, {
           headers: { "x-api-key": X_API_KEY , "Cache-Control": "no-cache" },
         });
         const data = await response.json();
@@ -55,7 +55,7 @@ export default function DonatePage() {
     }
 
     try {
-      const response = await fetch(`${HOST}/donate`, {
+      const response = await fetch(`${HOST}/api/donate`, {
         method: "POST",
         headers: { "x-api-key": X_API_KEY },
         body: formData,

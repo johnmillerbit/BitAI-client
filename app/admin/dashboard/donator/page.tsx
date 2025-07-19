@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image'; // Import Image component
 import { getUnallowedDonators, deleteDonator, allowDonator } from '../../../../services/api';
 
 interface Donator {
@@ -103,7 +104,13 @@ export default function DonatorDashboard() {
 								</div>
 								<div>
 									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Slip:</p>
-									<img src={`${HOST}/${detailDonator.file_path}`} alt="slip" className="max-w-full h-auto" />
+									<Image
+										src={`${HOST}/${detailDonator.file_path}`}
+										alt="slip"
+										width={500} // Assuming a reasonable default width
+										height={300} // Assuming a reasonable default height
+										className="max-w-full h-auto object-contain" // object-contain to ensure image fits
+									/>
 								</div>
 								{detailDonator.message && (<div>
 									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Message:</p>

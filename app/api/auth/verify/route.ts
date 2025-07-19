@@ -18,13 +18,14 @@ export async function POST(req: NextRequest) {
         console.log('Token verified in Node.js API:', decoded);
 
         return NextResponse.json({ valid: true, user: decoded }, { status: 200 });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Token verification error in Node.js API:', error);
         if (error instanceof jwt.JsonWebTokenError) {
             return NextResponse.json({ valid: false, message: 'Invalid token' }, { status: 401 });
         } else if (error instanceof jwt.TokenExpiredError) {
             return NextResponse.json({ valid: false, message: 'Token expired' }, { status: 401 });
         }
-        return NextResponse.json({ valid: false, message: error.message || 'Server error' }, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : 'Server error';
+        return NextResponse.json({ valid: false, message: errorMessage }, { status: 500 });
     }
 }

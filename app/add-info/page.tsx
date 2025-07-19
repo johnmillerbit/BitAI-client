@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY!;
-const HOST = "http://localhost:3001/add-document";
+const HOST = "https://bitai.millerbit.biz/api/add-document";
 
 interface MetadataItem {
   id: string;
