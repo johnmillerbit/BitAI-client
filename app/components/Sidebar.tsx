@@ -3,9 +3,11 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSidebar } from "@/context/Sidebar";
 import Link from "next/link";
-import "../../components/icons";
+import "../../lib/icons";
+import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
+    const pathname = usePathname();
     const { toggleSidebar, isSidebarOpen } = useSidebar();
     return (
         <div className={`fixed top-0 left-0 h-full z-40 ${isSidebarOpen ? 'w-50 border-r-1' : 'w-0 md:w-12'} flex bg-gray-800 flex-col justify-between border-gray-600 duration-200 md:border-r-1`}>
@@ -22,7 +24,13 @@ export default function Sidebar() {
                     </button>
                 </div>
                 <div className="p-3 ">
-                    <button onClick={() => window.location.reload()} className={`text-sm ${isSidebarOpen ? 'w-full' : 'hidden md:flex'} bg-gray-700 p-1 rounded-md flex items-center gap-1 cursor-pointer`}>
+                    <button onClick={() => {
+                        if (pathname !== '/') {
+                            window.location.href = '/';
+                        } else {
+                            window.location.reload();
+                        }
+                    }} className={`text-sm ${isSidebarOpen ? 'w-full' : 'hidden md:flex'} bg-gray-700 p-1 rounded-md flex items-center gap-1 cursor-pointer`}>
                         <FontAwesomeIcon icon="plus" width={15} />
                         <p className={` ${isSidebarOpen ? 'block' : 'hidden'}`}>New Chat</p>
                     </button>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useSidebar } from '@/context/Sidebar';
-import '../../components/icons';
+import '../../lib/icons';
 
 export default function Header() {
   const { toggleSidebar, isSidebarOpen } = useSidebar();

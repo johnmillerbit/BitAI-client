@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Lao } from "next/font/google";
+
+import SidebarProvider from "../context/Sidebar";
+import MainContentWrapper from "./components/MainContentWrapper";
+import Sidebar from "./components/Sidebar";
+
 import "./globals.css";
 
-//import context
-import SidebarProvider from "../context/Sidebar";
-
-//import component
-import Sidebar from "./component/Sidebar";
-import MainContentWrapper from "./component/MainContentWrapper";
-
-//font
 const notoSans = Noto_Sans_Lao({
     subsets: ["lao", "latin"],
     weight: ["400", "700"],
