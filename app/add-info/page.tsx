@@ -1,13 +1,12 @@
 "use client";
+
 import { useState } from "react";
 
 const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY!;
-// const HOST = "https://bitai.millerbit.biz/api/add-document";
 const HOST = "http://localhost:3001/add-document";
 
-// Define a type for your metadata items
 interface MetadataItem {
-  id: string; // Add an ID for unique keying in React
+  id: string;
   key: string;
   value: string;
 }

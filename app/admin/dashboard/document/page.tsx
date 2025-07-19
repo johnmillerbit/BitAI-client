@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { getDocuments, deleteDocument } from '../../../../services/api';
+import React, { useEffect, useState } from 'react';
+
+import { deleteDocument, getDocuments } from '../../../../services/api';
 
 interface Document {
   id: string;
