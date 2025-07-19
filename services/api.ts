@@ -3,7 +3,7 @@ import { ChatHistoryItem } from '../types';
 const API_HOST = process.env.NEXT_PUBLIC_API_URL!;
 
 export const callRagApi = async (query: string, history: ChatHistoryItem[]) => {
-  const response = await fetch(API_HOST, {
+  const response = await fetch(`${API_HOST}chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
